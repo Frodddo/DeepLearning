@@ -56,3 +56,22 @@ class ConvolutionalLayer(object):
             self.height_out = (self.input.shape[2] + 2*self.padding - self.kernel_size) // self.stride +1  
             self.width_out = (self.input.shape[3] + 2*self.padding - self.kernel_size) // self.stride +1
             
+            self.output = np.zeros([self.input[0],self.channel_output,self.height_out,self.width_out])
+            
+            for batch in range(self.input.shape[0]):
+                for channel in range(self.channel_out):
+                    for h in range(self.height_out):
+                        for w in range(self.width_out):
+                            #kernel:self.channel_in,self.kernel_size,self.kernel_size,self.channel_out
+                            #一个输入图片 一个输出通道上的（一个channel_out） 输出特征图上的一个像素点
+                            #把三个channel_in*卷积核 + bias
+                            self.output[batch,channel,h,w] = np.sum(self.padded[batch,h:h+self.kernel_size,w:w+self.kernel_size]*self.weight[:,:,:,channel]) + self.bias[channel]
+        
+            return self.output
+        
+        def load_param(self,weight,bias):
+            assert self.weight.shape == weight.shape
+            assert self.bias.shape == bias.shape
+            self.weight = weight
+            self.bias = bias
+            
